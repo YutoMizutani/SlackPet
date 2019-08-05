@@ -57,6 +57,23 @@ SlackBot が存在するチャンネルでの発言に応じて GitHub に issue
 
 <img width="640" alt="screenshot 303" src="https://user-images.githubusercontent.com/22558921/62422077-a268f980-b6e7-11e9-8aac-482696d1752d.png">
 
+## ojichat
+
+[ojichat](https://github.com/greymd/ojichat) を出力します。
+
+`:older_man: ` (+ オプション) + (任意の文字)
+
+<img width="630" alt="screenshot 305" src="https://user-images.githubusercontent.com/22558921/62444208-d26fd580-b797-11e9-8426-43d519e4ba5f.png">
+
+#### [オプション](https://github.com/greymd/ojichat#使い方)
+
+```
+Options:
+  -h, --help      ヘルプを表示.
+  -V, --version   バージョンを表示.
+  -e <number>     絵文字/顔文字の最大連続数 [default: 4].
+  -p <level>      句読点挿入頻度レベル [min:0, max:3] [default: 0].
+```
 
 ## イースターエッグ
 
