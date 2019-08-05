@@ -1,0 +1,5 @@
+env.swift
+.DS_Store
+/.build
+/Packages
+/*.xcodeproj
