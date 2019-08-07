@@ -19,13 +19,18 @@ let package = Package(
             path: "Sources/GitHubKit"
         ),
         .target(
+            name: "OjichatKit",
+            dependencies: [],
+            path: "Sources/OjichatKit"
+        ),
+        .target(
             name: "SlackBot",
             dependencies: ["SlackKit"],
             path: "Sources/SlackBot"
         ),
         .target(
             name: "SlackPet",
-            dependencies: ["GitHubKit", "SlackBot"],
+            dependencies: ["GitHubKit", "OjichatKit", "SlackBot"],
             path: "Sources/SlackPet"
         ),
         .testTarget(
