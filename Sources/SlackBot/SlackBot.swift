@@ -16,6 +16,11 @@ public class SlackBot {
         configureNotification()
     }
 
+    /// Send message
+    ///
+    /// - Parameters:
+    ///     - text: Post message
+    ///     - channel: Post channel
     public func send(_ text: String, to channel: String) {
         bot.webAPI?.sendMessage(
             channel: channel,
@@ -27,6 +32,45 @@ public class SlackBot {
             },
             failure: { _ in
                 print("Failed to send message on \(channel)")
+            }
+        )
+    }
+
+    /// Upload file
+    ///
+    /// - Parameters:
+    ///     - text: Post message
+    ///     - filePath: Upload file path
+    ///     - filename: Upload file name
+    ///     - channel: Post
+    public func upload(_ text: String, filePath: URL, filename: String? = nil, to channel: String) {
+        let fileData: Data?
+        do {
+            fileData = try Data(contentsOf: filePath)
+        } catch {
+            let errorMessage = "Failed to load file from \(filePath)"
+            print(errorMessage)
+            send(errorMessage, to: channel)
+            return
+        }
+        guard let file = fileData else {
+            let errorMessage = "Failed to load file data"
+            print(errorMessage)
+            send(errorMessage, to: channel)
+            return
+        }
+
+        bot.webAPI?.uploadFile(
+            file: file,
+            filename: filename ?? filePath.lastPathComponent,
+            initialComment: text,
+            channels: [channel],
+            success: {
+                dump($0)
+                print("< ", text)
+                print("Succeed to upload file on \(channel)")
+            }, failure: { _ in
+                print("Failed to upload file on \(channel)")
             }
         )
     }
@@ -49,9 +93,10 @@ public class SlackBot {
     }
 
     private func configureNotification() {
-        bot.notificationForEvent(.message) { event, _ in
+        bot.notificationForEvent(.message) { event, connection in
             let debugText = """
             Message notify!
+                team:     \(connection?.client?.team?.name ?? "")
                 channel:  \(event.message?.channel ?? "")
                 userID:   \(event.user?.id ?? "")
                 userName: \(event.user?.name ?? "")
@@ -68,17 +113,21 @@ public class SlackBot {
 
             guard
                 let message: String = event.message?.text,
+                let team: String = connection?.client?.team?.domain,
                 let channel: String = event.message?.channel
             else { return }
 
             /// Slack post time (unix time -> Date?)
             let messageDate: Date? = event.ts != nil ? Date(unixTime: event.ts!) : nil
 
-            self.delegate?.notifyMessage(message, date: messageDate, channel: channel)
+            self.delegate?.notifyMessage(message,
+                                         date: messageDate,
+                                         team: team,
+                                         channel: channel)
         }
     }
 }
 
 public protocol SlackNotificationDelegate: class {
-    func notifyMessage(_ message: String, date: Date?, channel: String)
+    func notifyMessage(_ message: String, date: Date?, team: String, channel: String)
 }

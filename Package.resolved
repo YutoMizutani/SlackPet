@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "CommandLineKit",
+        "repositoryURL": "https://github.com/pvieito/CommandLineKit.git",
+        "state": {
+          "branch": "master",
+          "revision": "5ac5756f066b0a2baa8240c533c07d124b2e7e89",
+          "version": null
+        }
+      },
+      {
         "package": "Core",
         "repositoryURL": "https://github.com/vapor/core.git",
         "state": {
@@ -20,12 +29,39 @@
         }
       },
       {
+        "package": "EmojiKit",
+        "repositoryURL": "https://github.com/YutoMizutani/EmojiKit.git",
+        "state": {
+          "branch": "master",
+          "revision": "320f685088986f384a6c1074a544f3ecaa5144dc",
+          "version": null
+        }
+      },
+      {
         "package": "HTTP",
         "repositoryURL": "https://github.com/vapor/http.git",
         "state": {
           "branch": null,
           "revision": "254a0a0cbf22a02b697a075a0d2ddbb448bb7c87",
           "version": "3.2.0"
+        }
+      },
+      {
+        "package": "LoggerKit",
+        "repositoryURL": "https://github.com/pvieito/LoggerKit.git",
+        "state": {
+          "branch": "master",
+          "revision": "04b90d53e38f3f637ab54c980dd148569ffe723f",
+          "version": null
+        }
+      },
+      {
+        "package": "PythonTool",
+        "repositoryURL": "https://github.com/pvieito/PythonKit.git",
+        "state": {
+          "branch": "master",
+          "revision": "0b2ffa2db8d249112cc833a6e13faac004ce5835",
+          "version": null
         }
       },
       {
