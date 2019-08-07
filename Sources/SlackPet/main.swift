@@ -1,16 +1,19 @@
 import Foundation
 import GitHubKit
+import OjichatKit
 import SlackBot
 import SlackEmojiKit
 
 class SlackPet {
     let gitHubKit: GitHubKit
+    let ojichatKit: OjichatKit
     let slackBot: SlackBot
     let slackEmojiKit: SlackEmojiKit
     var parser: MessageParser!
 
     init() {
         gitHubKit = GitHubKit(Secrets.githubUserName.value, token: Secrets.githubPersonalToken.value)
+        ojichatKit = OjichatKit()
         slackBot = SlackBot(Secrets.slackBotToken.value)
         slackEmojiKit = SlackEmojiKit()
         parser = configureMessageParser()

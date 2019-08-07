@@ -20,6 +20,11 @@ let package = Package(
             path: "Sources/GitHubKit"
         ),
         .target(
+            name: "OjichatKit",
+            dependencies: [],
+            path: "Sources/OjichatKit"
+        ),
+        .target(
             name: "SlackBot",
             dependencies: ["SlackKit"],
             path: "Sources/SlackBot"
@@ -31,7 +36,7 @@ let package = Package(
         ),
         .target(
             name: "SlackPet",
-            dependencies: ["GitHubKit", "SlackBot", "SlackEmojiKit"],
+            dependencies: ["GitHubKit", "OjichatKit", "SlackBot", "SlackEmojiKit"],
             path: "Sources/SlackPet"
         ),
         .testTarget(
