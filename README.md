@@ -43,6 +43,17 @@ SlackBot が存在するチャンネルでの発言に応じて GitHub に issue
 - 2行目以降に ( `labels: ` or `label: ` ) + 存在するラベル名 でラベルがつきます (存在しない場合はラベルが生成されます)
 - 2行目以降に `assignees: ` + 存在するコントリビュータ名 でアサイン指定ができます
 
+## Slack emoji 作成
+文字列からカスタム絵文字用の emoji 画像を生成し，アップロードします。
+
+:warning: 現状 Slack には Custom emoji の作成に対応した API が公開されていないため，Bot は追加用 URL を発行します。
+
+### 反応メッセージ
+
+`:art: ` + 任意の文字列
+
+<img width="633" alt="screenshot 1" src="https://user-images.githubusercontent.com/22558921/62644040-31923d80-b984-11e9-8a39-2dbca3b3a26c.png">
+
 ## タイマー
 入力した時間後に Slack から通知するタイマー機能です。
 
