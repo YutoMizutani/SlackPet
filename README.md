@@ -54,20 +54,6 @@ SlackBot が存在するチャンネルでの発言に応じて GitHub に issue
 
 <img width="633" alt="screenshot 1" src="https://user-images.githubusercontent.com/22558921/62644040-31923d80-b984-11e9-8a39-2dbca3b3a26c.png">
 
-## タイマー
-入力した時間後に Slack から通知するタイマー機能です。
-
-`:clock` + x時間 + x分 + (伝え or 知らせ or 教え)
-
-<img width="635" alt="screenshot 289" src="https://user-images.githubusercontent.com/22558921/62355771-a875a380-b54a-11e9-920e-f5f0661dd380.png">
-<img width="639" alt="screenshot 290" src="https://user-images.githubusercontent.com/22558921/62355809-b88d8300-b54a-11e9-9429-f1b44b35d108.png">
-
-#### オプション
-
-`「」` を利用することで，通知時に任意のメッセージを含めることができます。
-
-<img width="640" alt="screenshot 303" src="https://user-images.githubusercontent.com/22558921/62422077-a268f980-b6e7-11e9-8aac-482696d1752d.png">
-
 ## ojichat
 
 [ojichat](https://github.com/greymd/ojichat) を出力します。
@@ -85,6 +71,20 @@ Options:
   -e <number>     絵文字/顔文字の最大連続数 [default: 4].
   -p <level>      句読点挿入頻度レベル [min:0, max:3] [default: 0].
 ```
+
+## タイマー
+入力した時間後に Slack から通知するタイマー機能です。
+
+`:clock` + x時間 + x分 + (伝え or 知らせ or 教え)
+
+<img width="635" alt="screenshot 289" src="https://user-images.githubusercontent.com/22558921/62355771-a875a380-b54a-11e9-920e-f5f0661dd380.png">
+<img width="639" alt="screenshot 290" src="https://user-images.githubusercontent.com/22558921/62355809-b88d8300-b54a-11e9-9429-f1b44b35d108.png">
+
+#### オプション
+
+`「」` を利用することで，通知時に任意のメッセージを含めることができます。
+
+<img width="640" alt="screenshot 303" src="https://user-images.githubusercontent.com/22558921/62422077-a268f980-b6e7-11e9-8aac-482696d1752d.png">
 
 ## イースターエッグ
 

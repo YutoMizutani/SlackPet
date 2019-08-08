@@ -87,6 +87,26 @@ extension SlackPet {
             return true
         }
 
+        // MARK: - Ojichat
+        // ojichat pipe
+        if #available(OSX 10.13, *) {
+            parser.append { message, date, _, channel -> Bool in
+                guard message.hasPrefix(":older_man:") else { return false }
+                let argv = message == ":older_man:"
+                    ? ""
+                    : message
+                        .replacingOccurrences(of: ":older_man: ", with: "")
+                        .replacingOccurrences(of: ":older_man::skin-tone-2: ", with: "")
+                        .replacingOccurrences(of: ":older_man::skin-tone-3: ", with: "")
+                        .replacingOccurrences(of: ":older_man::skin-tone-4: ", with: "")
+                        .replacingOccurrences(of: ":older_man::skin-tone-5: ", with: "")
+                        .replacingOccurrences(of: ":older_man::skin-tone-6: ", with: "")
+                guard let result = self.ojichatKit.execute(argv) else { return false }
+                self.slackBot.send(result, to: channel)
+                return true
+            }
+        }
+
         // MARK: - Timer
 
         // 分後にお知らせ
@@ -110,26 +130,6 @@ extension SlackPet {
                         self?.slackBot.send("アラームだよ〜", to: channel)
                     }
                 }
-                return true
-            }
-        }
-
-        // MARK: - Ojichat
-        // ojichat pipe
-        if #available(OSX 10.13, *) {
-            parser.append { message, date, channel -> Bool in
-                guard message.hasPrefix(":older_man:") else { return false }
-                let argv = message == ":older_man:"
-                    ? ""
-                    : message
-                        .replacingOccurrences(of: ":older_man: ", with: "")
-                        .replacingOccurrences(of: ":older_man::skin-tone-2: ", with: "")
-                        .replacingOccurrences(of: ":older_man::skin-tone-3: ", with: "")
-                        .replacingOccurrences(of: ":older_man::skin-tone-4: ", with: "")
-                        .replacingOccurrences(of: ":older_man::skin-tone-5: ", with: "")
-                        .replacingOccurrences(of: ":older_man::skin-tone-6: ", with: "")
-                guard let result = self.ojichatKit.execute(argv) else { return false }
-                self.slackBot.send(result, to: channel)
                 return true
             }
         }
