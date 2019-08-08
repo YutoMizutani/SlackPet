@@ -65,8 +65,7 @@ public class SlackBot {
             filename: filename ?? filePath.lastPathComponent,
             initialComment: text,
             channels: [channel],
-            success: {
-                dump($0)
+            success: { _ in
                 print("< ", text)
                 print("Succeed to upload file on \(channel)")
             }, failure: { _ in

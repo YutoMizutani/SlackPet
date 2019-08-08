@@ -76,9 +76,43 @@ extension SlackPet {
         // Create a new emoji
         parser.append { message, date, team, channel -> Bool in
             guard message.hasPrefix(":art: ") else { return false }
-            let emojiText = message
+            let colorRegex = "(0x|#)[0-9a-fA-F]{6,8}"
+            let textColorRegex = "(color|textColor|text): \(colorRegex)"
+            let backgroundColorRegex = "(background|backgroundColor|back): \(colorRegex)"
+            let splitted: [String] = message
                 .replacingOccurrences(of: ":art: ", with: "")
-            guard let emojiPath = self.slackEmojiKit.generate(emojiText) else { return true }
+                .split(separator: "\n")
+                .map { String($0) }
+            let emojiText: String = splitted
+                .filter { (try! $0.matches(for: textColorRegex).isEmpty) && (try! $0.matches(for: backgroundColorRegex).isEmpty) }
+                .joined(separator: "\n")
+            let textColor: String? = splitted
+                .map { try! $0.matches(for: textColorRegex).last }
+                .compactMap { $0 }
+                .map {
+                    $0.split(separator: " ").map { String($0) }.last!
+                        .replacingOccurrences(of: "#", with: "")
+                        .replacingOccurrences(of: "0x", with: "")
+                }
+                .map { "0x\(String(repeating: "F", count: 8 - $0.count))\($0)" }
+                .last
+            let backgroundColor: String? = splitted
+                .map { try! $0.matches(for: backgroundColorRegex).last }
+                .compactMap { $0 }
+                .map {
+                    $0.split(separator: " ").map { String($0) }.last!
+                        .replacingOccurrences(of: "#", with: "")
+                        .replacingOccurrences(of: "0x", with: "")
+                }
+                .map { "0x\(String(repeating: "F", count: 8 - $0.count))\($0)" }
+                .last
+
+            print(emojiText)
+            guard
+                let emojiPath: URL = self.slackEmojiKit.generate(emojiText,
+                                                                 textColor: textColor,
+                                                                 backgroundColor: backgroundColor)
+            else { return true }
             let addCustomEmojiURL = "https://\(team).slack.com/customize/emoji"
             let uploadMessage = "emoji できたよ!\n追加用URL: \(addCustomEmojiURL)"
             self.slackBot.upload(uploadMessage,

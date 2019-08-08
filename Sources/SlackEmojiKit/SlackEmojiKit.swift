@@ -59,8 +59,8 @@ public class SlackEmojiKit {
     ///   - fontPath: Font file path
     public func generate(
         _ text: String,
-        textColor: String = "0xFF000000",
-        backgroundColor: String = "0x00FFFFFF",
+        textColor: String? = nil,
+        backgroundColor: String? = nil,
         font: String = "NotoSansMonoCJKjp-Bold.otf"
         ) -> URL? {
         EmojiKit().generate(
@@ -68,8 +68,8 @@ public class SlackEmojiKit {
             width: 128,
             height: 128,
             imagePath: outPath,
-            textColor: textColor.hex() ?? 0xFF000000,
-            backgroundColor: backgroundColor.hex() ?? 0x00FFFFFF,
+            textColor: textColor?.hex() ?? 0xFF000000,
+            backgroundColor: backgroundColor?.hex() ?? 0x00FFFFFF,
             textAlignment: .left,
             fontPath: "\(fontPath)/\(font)"
         )

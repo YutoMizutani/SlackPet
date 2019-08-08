@@ -54,6 +54,13 @@ SlackBot が存在するチャンネルでの発言に応じて GitHub に issue
 
 <img width="633" alt="screenshot 1" src="https://user-images.githubusercontent.com/22558921/62644040-31923d80-b984-11e9-8a39-2dbca3b3a26c.png">
 
+#### オプション
+
+- 2行目以降に ( `color: ` or `textColor: ` or `text: ` ) + ( `0xRRGGBB` or `0xAARRGGBB` or `#RRGGBB` `#AARRGGBB` ) で文字色を指定できます。
+- 2行目以降に ( `background: ` or `backgroundColor: ` or `back: ` ) + (  `0xRRGGBB` or `0xAARRGGBB` or `#RRGGBB` `#AARRGGBB` ) で背景色を指定できます。
+
+<img width="629" alt="screenshot 4" src="https://user-images.githubusercontent.com/22558921/62676226-07bd3300-b9e5-11e9-8543-e00f254e5e2c.png">
+
 ## ojichat
 
 [ojichat](https://github.com/greymd/ojichat) を出力します。
