@@ -67,6 +67,7 @@ extension SlackPet {
                         Attachment(
                             fallback: trigger.buildSlug,
                             title: trigger.message,
+                            colorHex: "#683D87",
                             fields: [
                                 AttachmentField(field:
                                     [
