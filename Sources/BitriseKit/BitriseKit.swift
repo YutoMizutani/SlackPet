@@ -49,31 +49,60 @@ public class BitriseKit {
         search(nil, completion: completion)
     }
 
+    public func triggerBuild(_ app: BitriseAPI.App,
+                             branch: String = "master",
+                             workflow: String?,
+                             completion: ((Result<(BitriseAPI.App, BitriseAPI.Trigger)>) -> Void)? = nil) {
+        print("Starting a new build...\n\ttitle: \(app.title)\n\trepo: \(app.repoUrl.absoluteString)\n\tbranch: \(branch)\n\tworkflow: \(workflow ?? "Based on trigger map")")
+
+        service.triggerBuild(
+            with: TriggerBuildOptions(
+                buildParams: TriggerBuildOptions.BuildParams(
+                    branch: branch,
+                    workflowID: workflow
+                )
+            ),
+            app: app,
+            completion: {
+                switch $0 {
+                case .success(let trigger):
+                    completion?(.success((app, trigger)))
+                case .failure(let e):
+                    completion?(.failure(e))
+                }
+            }
+        )
+    }
+
     public func triggerBuild(_ app: String,
                              branch: String = "master",
-                             workflow: String,
-                             completion: ((Result<BitriseAPI.Trigger>) -> Void)? = nil) {
+                             workflow: String?,
+                             completion: ((Result<(BitriseAPI.App, BitriseAPI.Trigger)>) -> Void)? = nil) {
         let appName = app
         searchApp(appName) { [weak self] in
             switch $0 {
             case .success(let app):
                 print("Found app!: \(app.title)")
-                print("Starting a new build...\n\ttitle: \(app.title)\n\trepo: \(app.repoUrl.absoluteString)\n\tbranch: \(branch)\n\tworkflow: \(workflow)")
 
-                self?.service.triggerBuild(
-                    with: TriggerBuildOptions(
-                        buildParams: TriggerBuildOptions.BuildParams(
-                            branch: branch,
-                            workflowID: workflow
-                        )
-                    ),
-                    app: app,
-                    completion: { completion?($0) }
+                self?.triggerBuild(
+                    app,
+                    branch: branch,
+                    workflow: workflow,
+                    completion: completion
                 )
             case .failure(let e):
                 completion?(.failure(e))
             }
         }
+    }
+}
+
+public extension BitriseAPI.Result {
+    var value: Value? {
+        if case .success(let v) = self {
+            return v
+        }
+        return nil
     }
 }
 

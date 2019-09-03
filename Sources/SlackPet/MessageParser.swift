@@ -1,4 +1,5 @@
 import Foundation
+import SlackKit
 
 class MessageParser {
     private var handlers: [MessageHandler] = []
@@ -25,6 +26,69 @@ extension SlackPet {
         parser.append { message, date, _, channel -> Bool in
             guard message == "hello" else { return false }
             self.slackBot.send("Hello, world!!", to: channel)
+            return true
+        }
+
+        // MARK: - Bitrise
+
+        // Trigger a new build
+        parser.append { message, date, _, channel -> Bool in
+            guard
+                message.hasPrefix(":hammer: ")
+                    || message.hasPrefix(":hammer_and_pick: ")
+                    || message.hasPrefix(":hammer_and_wrench: ")
+                else { return false }
+            var splittedMessages = message
+                .replacingOccurrences(of: ":hammer: ", with: "")
+                .replacingOccurrences(of: ":hammer_and_pick: ", with: "")
+                .replacingOccurrences(of: ":hammer_and_wrench: ", with: "")
+                .split(separator: "\n")
+                .map { String($0) }
+            let appName = splittedMessages.first!
+            splittedMessages = !splittedMessages.isEmpty
+                ? splittedMessages[1..<splittedMessages.count].map { $0 }
+                : []
+            guard let branchSeed = splittedMessages.enumerated().first(where: { $0.element.hasPrefix("branch: ") }) else {
+                self.slackBot.send("Error: Required parameter not found: `branch: <BRANCH_NAME>`", to: channel)
+                return true
+            }
+            let branch = branchSeed.element
+                .replacingOccurrences(of: "branch: ", with: "")
+                .replacingOccurrences(of: " ", with: "")
+            let workflowSeed = splittedMessages.enumerated().first(where: { $0.element.hasPrefix("workflow: ") })
+            let workflow = workflowSeed?.element
+                .replacingOccurrences(of: "workflow: ", with: "")
+            self.bitriseKit.triggerBuild(appName, branch: branch, workflow: workflow, completion: { [weak self] in
+                guard let (app, trigger) = $0.value else { return }
+                self?.slackBot.send(
+                    "Build started!",
+                    to: channel,
+                    attachments: [
+                        Attachment(
+                            fallback: trigger.buildSlug,
+                            title: trigger.message,
+                            fields: [
+                                AttachmentField(field:
+                                    [
+                                        "App": app.title,
+                                        "Branch": trigger.service,
+                                        "Workflow": trigger.triggeredWorkflow
+                                    ]
+                                )
+                            ],
+                            actions: [
+                                Action(
+                                    name: "View Build",
+                                    text: "View Build",
+                                    type: "button",
+                                    style: .defaultStyle,
+                                    url: trigger.buildUrl
+                                )
+                            ]
+                        )
+                    ]
+                )
+            })
             return true
         }
 

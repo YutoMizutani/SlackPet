@@ -21,11 +21,14 @@ public class SlackBot {
     /// - Parameters:
     ///     - text: Post message
     ///     - channel: Post channel
-    public func send(_ text: String, to channel: String) {
+    public func send(_ text: String,
+                     to channel: String,
+                     attachments: [Attachment?]? = nil) {
         bot.webAPI?.sendMessage(
             channel: channel,
             text: text,
             asUser: true,
+            attachments: attachments,
             success: { _, c in
                 print("< ", text)
                 print("Succeed to send message on \(c ?? channel)")
