@@ -3,9 +3,12 @@ PROJECT_NAME=SlackPet
 all:
 	make clean
 	make build
+	make generate
+	make open
 
 build:
 	swift build
+
 generate:
 	swift package generate-xcodeproj
 

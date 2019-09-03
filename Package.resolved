@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "BitriseAPI",
+        "repositoryURL": "https://github.com/YutoMizutani/BitriseAPI-Swift.git",
+        "state": {
+          "branch": "feature/trigger_build",
+          "revision": "8f162cca7427c5f9c2fc52bddd16bac361f5ed25",
+          "version": null
+        }
+      },
+      {
         "package": "CommandLineKit",
         "repositoryURL": "https://github.com/pvieito/CommandLineKit.git",
         "state": {
@@ -15,8 +24,8 @@
         "repositoryURL": "https://github.com/vapor/core.git",
         "state": {
           "branch": null,
-          "revision": "57368d4092f92df3131e5968c8ed24a3c7361ec0",
-          "version": "3.8.1"
+          "revision": "c64f63cb21631010952f7abfef719d376ab6a441",
+          "version": "3.9.1"
         }
       },
       {
@@ -33,7 +42,7 @@
         "repositoryURL": "https://github.com/YutoMizutani/EmojiKit.git",
         "state": {
           "branch": "master",
-          "revision": "320f685088986f384a6c1074a544f3ecaa5144dc",
+          "revision": "8bfb4cd4247bc019a9d4e0c4186b6340b0b9a22c",
           "version": null
         }
       },
@@ -42,8 +51,8 @@
         "repositoryURL": "https://github.com/vapor/http.git",
         "state": {
           "branch": null,
-          "revision": "254a0a0cbf22a02b697a075a0d2ddbb448bb7c87",
-          "version": "3.2.0"
+          "revision": "3808ed0401379b6e9f4a053f03090ea9d658caa9",
+          "version": "3.2.1"
         }
       },
       {
@@ -123,8 +132,8 @@
         "repositoryURL": "https://github.com/httpswift/swifter.git",
         "state": {
           "branch": null,
-          "revision": "57faa5da31c02e035e43e8189f7ae7e8fb7ddc68",
-          "version": "1.4.6"
+          "revision": "8b5afb48ae64d4f729f0489ddcfe09c62b9c3687",
+          "version": "1.4.7"
         }
       },
       {

@@ -1,3 +1,4 @@
+import BitriseKit
 import Foundation
 import GitHubKit
 import OjichatKit
@@ -5,6 +6,7 @@ import SlackBot
 import SlackEmojiKit
 
 class SlackPet {
+    let bitriseKit: BitriseKit
     let gitHubKit: GitHubKit
     let ojichatKit: OjichatKit
     let slackBot: SlackBot
@@ -12,6 +14,7 @@ class SlackPet {
     var parser: MessageParser!
 
     init() {
+        bitriseKit = BitriseKit(Secrets.bitrisePersonalAccessToken.value)
         gitHubKit = GitHubKit(Secrets.githubUserName.value, token: Secrets.githubPersonalToken.value)
         ojichatKit = OjichatKit()
         slackBot = SlackBot(Secrets.slackBotToken.value)
