@@ -2,7 +2,7 @@ import Foundation
 import SlackKit
 
 public class SlackBot {
-    private let bot = SlackKit()
+    private let slackKit = SlackKit()
 
     public var delegate: SlackNotificationDelegate?
     public var user: String?
@@ -10,8 +10,8 @@ public class SlackBot {
     public var isNotifySelf = false
 
     public init(_ token: String) {
-        bot.addRTMBotWithAPIToken(token)
-        bot.addWebAPIAccessWithToken(token)
+        slackKit.addRTMBotWithAPIToken(token)
+        slackKit.addWebAPIAccessWithToken(token)
         configureAuthorize()
         configureNotification()
     }
@@ -21,11 +21,14 @@ public class SlackBot {
     /// - Parameters:
     ///     - text: Post message
     ///     - channel: Post channel
-    public func send(_ text: String, to channel: String) {
-        bot.webAPI?.sendMessage(
+    public func send(_ text: String,
+                     to channel: String,
+                     attachments: [Attachment?]? = nil) {
+        slackKit.webAPI?.sendMessage(
             channel: channel,
             text: text,
             asUser: true,
+            attachments: attachments,
             success: { _, c in
                 print("< ", text)
                 print("Succeed to send message on \(c ?? channel)")
@@ -60,7 +63,7 @@ public class SlackBot {
             return
         }
 
-        bot.webAPI?.uploadFile(
+        slackKit.webAPI?.uploadFile(
             file: file,
             filename: filename ?? filePath.lastPathComponent,
             initialComment: text,
@@ -75,7 +78,7 @@ public class SlackBot {
     }
 
     private func configureAuthorize() {
-        bot.webAPI?.authenticationTest(
+        slackKit.webAPI?.authenticationTest(
             success: { user, team in
                 self.user = user
                 print("""
@@ -92,7 +95,7 @@ public class SlackBot {
     }
 
     private func configureNotification() {
-        bot.notificationForEvent(.message) { event, connection in
+        slackKit.notificationForEvent(.message) { event, connection in
             let debugText = """
             Message notify!
                 team:     \(connection?.client?.team?.name ?? "")

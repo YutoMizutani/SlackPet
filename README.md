@@ -6,6 +6,8 @@ A customizable Slack bot tool with pet-like friendliness written in swift.
 `exampleEnv.swift` でコメントアウトされている部分を `env.swift` に追加してください。
 各 `Secrets("")` の `""` 内に記述することで動作します。
 
+
+- `bitrisePersonalAccessToken`: Bitrise のパーソナルアクセストークン
 - `slackBotToken`: SlackBot トークン
 - `githubUserName`: GitHub のユーザ名
 - `githubPersonalToken`: GitHub のパーソナルアクセストークン
@@ -14,6 +16,7 @@ A customizable Slack bot tool with pet-like friendliness written in swift.
 
 ```swift
 public extension Secrets {
+    static let bitrisePersonalAccessToken = Secrets("")
     static let slackBotToken = Secrets("")
     static let githubUserName = Secrets("")
     static let githubPersonalToken = Secrets("")

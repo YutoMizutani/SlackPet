@@ -5,15 +5,24 @@ import PackageDescription
 
 let package = Package(
     name: "SlackPet",
+    platforms: [
+        .iOS(.v8), .tvOS(.v9), .macOS(.v10_12), .watchOS(.v2)
+    ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/pvzig/SlackKit.git", .upToNextMajor(from: "4.4.0")),
-        .package(url: "https://github.com/YutoMizutani/EmojiKit.git", .branch("master")),
+        .package(url: "https://github.com/YutoMizutani/BitriseAPI-Swift.git", .branch("feature/trigger_build")),
+        .package(url: "https://github.com/YutoMizutani/EmojiKit.git", .branch("master"))
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
+        .target(
+            name: "BitriseKit",
+            dependencies: ["BitriseAPI"],
+            path: "Sources/BitriseKit"
+        ),
         .target(
             name: "GitHubKit",
             path: "Sources/GitHubKit"
@@ -34,7 +43,7 @@ let package = Package(
         ),
         .target(
             name: "SlackPet",
-            dependencies: ["GitHubKit", "OjichatKit", "SlackBot", "SlackEmojiKit"],
+            dependencies: ["BitriseKit", "GitHubKit", "OjichatKit", "SlackBot", "SlackEmojiKit"],
             path: "Sources/SlackPet"
         ),
         .testTarget(
