@@ -32,6 +32,19 @@ public extension Secrets {
 $ make all
 ```
 
+
+## Bitrise トリガービルド
+Bitrise のビルドを開始します。
+
+### 反応メッセージ
+
+`:hammer: ` + Bitrise app タイトル
+
+- 2行目以降に `branch: ` + Branch 名 で実行ブランチを指定する必要があります。
+- 2行目以降に `workflow: ` + Workflow 名 で実行ワークフローを指定できます。
+
+<img width="633" alt="screenshot 74" src="https://user-images.githubusercontent.com/22558921/64196565-16e9b080-cebf-11e9-8c99-d531e25d6042.png">
+
 ## GitHub issue 追加
 SlackBot が存在するチャンネルでの発言に応じて GitHub に issue を作成します。
 
