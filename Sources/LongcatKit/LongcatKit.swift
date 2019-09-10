@@ -1,5 +1,5 @@
 //
-//  OjichatKit.swift
+//  LongcatKit.swift
 //
 //  Created by Yuto Mizutani on 2019/06/11.
 //
@@ -7,11 +7,11 @@
 import Foundation
 import ShellKit
 
-/// https://github.com/greymd/ojichat
-public class OjichatKit {
+/// https://github.com/mattn/longcat
+public class LongcatKit {
     private let shellKit: ShellKit
     private let golangCommand: String = "go"
-    private let ojichatCommand: String = "ojichat"
+    private let longcatCommand: String = "longcat"
     /// 実行可能か
     private var canExcute: Bool = false
 
@@ -21,7 +21,7 @@ public class OjichatKit {
         if #available(OSX 10.13, *) {
             confirmDependencies()
         } else {
-            print("Ojichat launch failed - required macOS 10.13 or later")
+            print("Longcat launch failed - required macOS 10.13 or later")
         }
     }
 
@@ -32,7 +32,7 @@ public class OjichatKit {
             try shellKit.execute("""
                 if ! type \(golangCommand) > /dev/null 2>&1; then
                     echo command not found: \(golangCommand)
-                    echo OjichatKit の起動には go のインストールが必要です。 https://golang.org/doc/install よりインストールしてください。
+                    echo LongcatKit の起動には go のインストールが必要です。 https://golang.org/doc/install よりインストールしてください。
                     exit 1
                 fi
                 """)
@@ -45,9 +45,9 @@ public class OjichatKit {
         guard didInstallGoLang else { return }
         do {
             try shellKit.execute("""
-                if ! type \(ojichatCommand) > /dev/null 2>&1; then
-                    echo command not found: \(ojichatCommand)
-                    echo OjichatKit の起動には greymd/ojichat のインストールが必要です。 https://github.com/greymd/ojichat#インストール よりインストールしてください。
+                if ! type \(longcatCommand) > /dev/null 2>&1; then
+                    echo command not found: \(longcatCommand)
+                    echo LongcatKit の起動には mattn/longcat のインストールが必要です。 https://github.com/mattn/longcat#installation よりインストールしてください。
                     exit 1
                 fi
                 """)
@@ -58,13 +58,13 @@ public class OjichatKit {
         }
     }
 
-    /// ojichat を実行し，その結果を返す。
-    /// OjichatKitは賢いオジサンなので，スペース区切りによるオプションにも対応する。
+    /// longcat を実行し，その結果を返す。
+    /// スペース区切りによるオプションにも対応する。
     @available(OSX 10.13, *)
     public func execute(_ argv: String) -> String? {
         guard canExcute else { return nil }
         do {
-            return try shellKit.execute("\(ojichatCommand) \(argv)")
+            return try shellKit.execute("\(longcatCommand) \(argv)")
         } catch let e {
             print(#function, e)
             return nil

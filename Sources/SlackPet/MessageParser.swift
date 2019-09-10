@@ -37,7 +37,7 @@ extension SlackPet {
                 message.hasPrefix(":hammer: ")
                     || message.hasPrefix(":hammer_and_pick: ")
                     || message.hasPrefix(":hammer_and_wrench: ")
-                else { return false }
+            else { return false }
             var splittedMessages = message
                 .replacingOccurrences(of: ":hammer: ", with: "")
                 .replacingOccurrences(of: ":hammer_and_pick: ", with: "")
@@ -186,7 +186,57 @@ extension SlackPet {
             return true
         }
 
-        // MARK: - Ojichat
+        // MARK: - longcat
+
+        // longcat pipe
+        if #available(OSX 10.13, *) {
+            parser.append { message, date, _, channel -> Bool in
+                guard
+                    message.elementsEqual(":cat:")
+                        || message.elementsEqual(":cat2:")
+                        || message.elementsEqual(":joy_cat:")
+                        || message.elementsEqual(":smile_cat:")
+                        || message.elementsEqual(":smirk_cat:")
+                        || message.elementsEqual(":smiley_cat:")
+                        || message.elementsEqual(":scream_cat:")
+                        || message.elementsEqual(":pouting_cat:")
+                        || message.elementsEqual(":kissing_cat:")
+                        || message.elementsEqual(":heart_eyes_cat:")
+                        || message.elementsEqual(":crying_cat_face:")
+                        || message.hasPrefix(":cat: ")
+                        || message.hasPrefix(":cat2: ")
+                        || message.hasPrefix(":joy_cat: ")
+                        || message.hasPrefix(":smile_cat: ")
+                        || message.hasPrefix(":smirk_cat: ")
+                        || message.hasPrefix(":smiley_cat: ")
+                        || message.hasPrefix(":scream_cat: ")
+                        || message.hasPrefix(":pouting_cat: ")
+                        || message.hasPrefix(":kissing_cat: ")
+                        || message.hasPrefix(":heart_eyes_cat: ")
+                        || message.hasPrefix(":crying_cat_face: ")
+                else { return false }
+                var argv = message.components(separatedBy: " ").dropFirst().joined()
+                if argv.elementsEqual(":cat:")
+                    || argv.elementsEqual(":cat2:")
+                    || argv.elementsEqual(":joy_cat:")
+                    || argv.elementsEqual(":smile_cat:")
+                    || argv.elementsEqual(":smirk_cat:")
+                    || argv.elementsEqual(":smiley_cat:")
+                    || argv.elementsEqual(":scream_cat:")
+                    || argv.elementsEqual(":pouting_cat:")
+                    || argv.elementsEqual(":kissing_cat:")
+                    || argv.elementsEqual(":heart_eyes_cat:")
+                    || argv.elementsEqual(":crying_cat_face:") {
+                    argv = ""
+                }
+                guard let result = self.longcatKit.execute(argv) else { return false }
+                self.slackBot.send(result, to: channel)
+                return true
+            }
+        }
+
+        // MARK: - ojichat
+
         // ojichat pipe
         if #available(OSX 10.13, *) {
             parser.append { message, date, _, channel -> Bool in

@@ -10,7 +10,6 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/pvzig/SlackKit.git", .upToNextMajor(from: "4.4.0")),
         .package(url: "https://github.com/YutoMizutani/BitriseAPI-Swift.git", .branch("feature/trigger_build")),
         .package(url: "https://github.com/YutoMizutani/EmojiKit.git", .branch("master"))
@@ -28,8 +27,18 @@ let package = Package(
             path: "Sources/GitHubKit"
         ),
         .target(
+            name: "LongcatKit",
+            dependencies: ["ShellKit"],
+            path: "Sources/LongcatKit"
+        ),
+        .target(
             name: "OjichatKit",
+            dependencies: ["ShellKit"],
             path: "Sources/OjichatKit"
+        ),
+        .target(
+            name: "ShellKit",
+            path: "Sources/ShellKit"
         ),
         .target(
             name: "SlackBot",
@@ -43,7 +52,7 @@ let package = Package(
         ),
         .target(
             name: "SlackPet",
-            dependencies: ["BitriseKit", "GitHubKit", "OjichatKit", "SlackBot", "SlackEmojiKit"],
+            dependencies: ["BitriseKit", "GitHubKit", "LongcatKit", "OjichatKit", "SlackBot", "SlackEmojiKit"],
             path: "Sources/SlackPet"
         ),
         .testTarget(
