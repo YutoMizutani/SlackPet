@@ -8,12 +8,16 @@ all:
 
 build:
 	swift build
+build-release:
+	swift build -c release
 
 generate:
 	swift package generate-xcodeproj
 
 run:
 	swift run
+run-release:
+	.build/release/$(PROJECT_NAME)
 
 update:
 	swift package update
