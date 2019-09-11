@@ -12,6 +12,10 @@ public class LongcatKit {
     private let shellKit: ShellKit
     private let golangCommand: String = "go"
     private let longcatCommand: String = "longcat"
+    /// Output image path option
+    public var outOption: String = "-o"
+    /// Output image path
+    public var outPath: String = "longcat.png"
     /// 実行可能か
     private var canExcute: Bool = false
 
@@ -61,10 +65,12 @@ public class LongcatKit {
     /// longcat を実行し，その結果を返す。
     /// スペース区切りによるオプションにも対応する。
     @available(OSX 10.13, *)
-    public func execute(_ argv: String) -> String? {
+    public func generate(_ argv: String) -> URL? {
         guard canExcute else { return nil }
         do {
-            return try shellKit.execute("\(longcatCommand) \(argv)")
+            let argv = argv + " \(outOption) \(outPath)"
+            try shellKit.execute("\(longcatCommand) \(argv)")
+            return URL(fileURLWithPath: outPath)
         } catch let e {
             print(#function, e)
             return nil

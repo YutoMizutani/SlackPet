@@ -215,7 +215,7 @@ extension SlackPet {
                         || message.hasPrefix(":heart_eyes_cat: ")
                         || message.hasPrefix(":crying_cat_face: ")
                 else { return false }
-                var argv = message.components(separatedBy: " ").dropFirst().joined()
+                var argv = message.components(separatedBy: " ").dropFirst().joined(separator: " ")
                 if argv.elementsEqual(":cat:")
                     || argv.elementsEqual(":cat2:")
                     || argv.elementsEqual(":joy_cat:")
@@ -229,8 +229,10 @@ extension SlackPet {
                     || argv.elementsEqual(":crying_cat_face:") {
                     argv = ""
                 }
-                guard let result = self.longcatKit.execute(argv) else { return false }
-                self.slackBot.send(result, to: channel)
+                guard let longcatPath = self.longcatKit.generate(argv) else { return false }
+                self.slackBot.upload("",
+                                     filePath: longcatPath,
+                                     to: channel)
                 return true
             }
         }
