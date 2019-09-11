@@ -20,23 +20,24 @@ public class ShellKit {
     /// Execute commands
     @available(OSX 10.13, *)
     @discardableResult
-    public func execute(_ argv: String) throws -> String? {
-        let longcatProcess = Process(path, argv: argv)
+    public func run(_ argv: String) throws -> String? {
+        let process = Process(path, argv: argv)
         let pipe = Pipe()
 
-        longcatProcess.standardOutput = pipe
-        try longcatProcess.run()
-        longcatProcess.waitUntilExit()
+        process.standardOutput = pipe
+        try process.run()
+        process.waitUntilExit()
 
-        guard longcatProcess.terminationStatus == 0 else {
-            throw ShellKitError.error(longcatProcess.terminationStatus)
+        guard process.terminationStatus == 0 else {
+            throw ShellKitError.error(process.terminationStatus)
         }
 
         return String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
     }
 
     /// Execute commands without result
-    public func execute(_ argv: String) {
+    @available(OSX, deprecated: 10.13, renamed: "run(_:)")
+    public func launch(_ argv: String) throws {
         // 実行には `-c` が必要
         let arguments = ["-c"] + [argv]
         let process = Process.launchedProcess(
@@ -44,6 +45,10 @@ public class ShellKit {
             arguments: arguments
         )
         process.waitUntilExit()
+
+        guard process.terminationStatus == 0 else {
+            throw ShellKitError.error(process.terminationStatus)
+        }
     }
 }
 

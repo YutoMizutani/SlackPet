@@ -42,7 +42,15 @@ public class SlackEmojiKit {
         let curl: String = "curl -f -s -L"
         let path = "\(fontPath)/\(fileName)"
         let command = "\(curl) \(fontURL) >| \(path)"
-        shellKit.execute(command)
+        do {
+            if #available(OSX 10.13, *) {
+                try shellKit.run(command)
+            } else {
+                try shellKit.launch(command)
+            }
+        } catch let e {
+            print(#function, e)
+        }
     }
 
     /// Generate Emoji image
