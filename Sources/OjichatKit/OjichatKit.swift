@@ -17,25 +17,26 @@ public class OjichatKit {
 
     public init() {
         shellKit = ShellKit()
-
-        if #available(OSX 10.13, *) {
-            confirmDependencies()
-        } else {
-            print("Ojichat launch failed - required macOS 10.13 or later")
-        }
+        confirmDependencies()
     }
 
-    @available(OSX 10.13, *)
     private func confirmDependencies() {
         let didInstallGoLang: Bool
         do {
-            try shellKit.execute("""
-                if ! type \(golangCommand) > /dev/null 2>&1; then
-                    echo command not found: \(golangCommand)
-                    echo OjichatKit の起動には go のインストールが必要です。 https://golang.org/doc/install よりインストールしてください。
-                    exit 1
-                fi
-                """)
+            let command = """
+            if ! type \(golangCommand) > /dev/null 2>&1; then
+                echo command not found: \(golangCommand)
+                echo OjichatKit の起動には go のインストールが必要です。 https://golang.org/doc/install よりインストールしてください。
+                exit 1
+            fi
+            """
+
+            if #available(OSX 10.13, *) {
+                try shellKit.run(command)
+            } else {
+                try shellKit.launch(command)
+            }
+
             didInstallGoLang = true
         } catch let e {
             print(#function, e)
@@ -44,13 +45,20 @@ public class OjichatKit {
 
         guard didInstallGoLang else { return }
         do {
-            try shellKit.execute("""
-                if ! type \(ojichatCommand) > /dev/null 2>&1; then
-                    echo command not found: \(ojichatCommand)
-                    echo OjichatKit の起動には greymd/ojichat のインストールが必要です。 https://github.com/greymd/ojichat#インストール よりインストールしてください。
-                    exit 1
-                fi
-                """)
+            let command = """
+            if ! type \(ojichatCommand) > /dev/null 2>&1; then
+                echo command not found: \(ojichatCommand)
+                echo OjichatKit の起動には greymd/ojichat のインストールが必要です。 https://github.com/greymd/ojichat#インストール よりインストールしてください。
+                exit 1
+            fi
+            """
+
+            if #available(OSX 10.13, *) {
+                try shellKit.run(command)
+            } else {
+                try shellKit.launch(command)
+            }
+
             canExcute = true
         } catch let e {
             print(#function, e)
@@ -64,7 +72,8 @@ public class OjichatKit {
     public func execute(_ argv: String) -> String? {
         guard canExcute else { return nil }
         do {
-            return try shellKit.execute("\(ojichatCommand) \(argv)")
+            let command = "\(ojichatCommand) \(argv)"
+            return try shellKit.run(command)
         } catch let e {
             print(#function, e)
             return nil
