@@ -1,6 +1,7 @@
 import BitriseKit
 import Foundation
 import GitHubKit
+import LongcatKit
 import OjichatKit
 import SlackBot
 import SlackEmojiKit
@@ -8,6 +9,7 @@ import SlackEmojiKit
 class SlackPet {
     let bitriseKit: BitriseKit
     let gitHubKit: GitHubKit
+    let longcatKit: LongcatKit
     let ojichatKit: OjichatKit
     let slackBot: SlackBot
     let slackEmojiKit: SlackEmojiKit
@@ -16,6 +18,7 @@ class SlackPet {
     init() {
         bitriseKit = BitriseKit(Secrets.bitrisePersonalAccessToken.value)
         gitHubKit = GitHubKit(Secrets.githubUserName.value, token: Secrets.githubPersonalToken.value)
+        longcatKit = LongcatKit()
         ojichatKit = OjichatKit()
         slackBot = SlackBot(Secrets.slackBotToken.value)
         slackEmojiKit = SlackEmojiKit()

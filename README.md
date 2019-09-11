@@ -77,6 +77,30 @@ SlackBot が存在するチャンネルでの発言に応じて GitHub に issue
 
 <img width="629" alt="screenshot 4" src="https://user-images.githubusercontent.com/22558921/62676226-07bd3300-b9e5-11e9-8543-e00f254e5e2c.png">
 
+## longcat
+
+[longcat](https://github.com/mattn/longcat) を出力します。
+
+`:cat: ` (+ オプション) + (任意の文字)
+
+<img width="628" alt="screenshot 100" src="https://user-images.githubusercontent.com/22558921/64666381-176ee200-d491-11e9-99ff-a889e27f8a70.png">
+
+#### [オプション](https://github.com/mattn/longcat#usage)
+
+```
+Usage of longcat:
+  -R    flip vertical
+  -i float
+        rate of intervals (default 1)
+  -l int
+        number of columns (default 1)
+  -n int
+        how long cat (default 1)
+  -o string
+        output image file
+  -r    flip holizontal
+```
+
 ## ojichat
 
 [ojichat](https://github.com/greymd/ojichat) を出力します。
