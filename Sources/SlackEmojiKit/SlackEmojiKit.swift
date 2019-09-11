@@ -1,5 +1,6 @@
 import Foundation
 import EmojiKit
+import ShellKit
 
 extension String {
     /// String to hex
@@ -14,12 +15,14 @@ extension String {
 }
 
 public class SlackEmojiKit {
+    private let shellKit: ShellKit
     /// Download font path
     public var fontPath: String = "."
     /// Output image path
     public var outPath: String = "emoji.png"
 
     public init() {
+        shellKit = ShellKit()
         downloadFontFile(
             "https://github.com/YutoMizutani/EmojiKit/raw/1.0.0/Example/static/NotoSansMonoCJKjp-Bold.otf"
         )
@@ -38,14 +41,8 @@ public class SlackEmojiKit {
 
         let curl: String = "curl -f -s -L"
         let path = "\(fontPath)/\(fileName)"
-        let process = Process.launchedProcess(
-            launchPath: "/bin/sh",
-            arguments: [
-                "-c",
-                "\(curl) \(fontURL) >| \(path)"
-            ]
-        )
-        process.waitUntilExit()
+        let command = "\(curl) \(fontURL) >| \(path)"
+        shellKit.execute(command)
     }
 
     /// Generate Emoji image

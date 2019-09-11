@@ -47,7 +47,7 @@ let package = Package(
         ),
         .target(
             name: "SlackEmojiKit",
-            dependencies: ["EmojiKit"],
+            dependencies: ["EmojiKit", "ShellKit"],
             path: "Sources/SlackEmojiKit"
         ),
         .target(

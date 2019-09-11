@@ -17,7 +17,7 @@ public class ShellKit {
 
     public init() {}
 
-    /// shell を実行し，その結果を返す。
+    /// Execute commands
     @available(OSX 10.13, *)
     @discardableResult
     public func execute(_ argv: String) throws -> String? {
@@ -33,6 +33,17 @@ public class ShellKit {
         }
 
         return String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
+    }
+
+    /// Execute commands without result
+    public func execute(_ argv: String) {
+        // 実行には `-c` が必要
+        let arguments = ["-c"] + [argv]
+        let process = Process.launchedProcess(
+            launchPath: path,
+            arguments: arguments
+        )
+        process.waitUntilExit()
     }
 }
 
