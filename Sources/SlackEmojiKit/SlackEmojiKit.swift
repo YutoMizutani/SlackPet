@@ -44,9 +44,9 @@ public class SlackEmojiKit {
         let command = "\(curl) \(fontURL) >| \(path)"
         do {
             if #available(OSX 10.13, *) {
-                try shellKit.run(command)
+                try shellKit.run(command, protection: .disabled)
             } else {
-                try shellKit.launch(command)
+                try shellKit.launch(command, protection: .disabled)
             }
         } catch let e {
             print(#function, e)

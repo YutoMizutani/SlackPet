@@ -172,7 +172,6 @@ extension SlackPet {
                 .map { "0x\(String(repeating: "F", count: 8 - $0.count))\($0)" }
                 .last
 
-            print(emojiText)
             guard
                 let emojiPath: URL = self.slackEmojiKit.generate(emojiText,
                                                                  textColor: textColor,
@@ -229,10 +228,14 @@ extension SlackPet {
                     || argv.elementsEqual(":crying_cat_face:") {
                     argv = ""
                 }
-                guard let longcatPath = self.longcatKit.generate(argv) else { return false }
-                self.slackBot.upload("",
-                                     filePath: longcatPath,
-                                     to: channel)
+                do {
+                    guard let longcatPath = try self.longcatKit.generate(argv) else { return false }
+                    self.slackBot.upload("",
+                                         filePath: longcatPath,
+                                         to: channel)
+                } catch let e {
+                    self.errorHandring(e, to: channel)
+                }
                 return true
             }
         }
@@ -252,8 +255,13 @@ extension SlackPet {
                         .replacingOccurrences(of: ":older_man::skin-tone-4: ", with: "")
                         .replacingOccurrences(of: ":older_man::skin-tone-5: ", with: "")
                         .replacingOccurrences(of: ":older_man::skin-tone-6: ", with: "")
-                guard let result = self.ojichatKit.execute(argv) else { return false }
-                self.slackBot.send(result, to: channel)
+                do {
+                    guard let result = try self.ojichatKit.execute(argv) else { return false }
+                    self.slackBot.send(result, to: channel)
+                } catch let e {
+                    print(#function, e)
+                    self.errorHandring(e, to: channel)
+                }
                 return true
             }
         }
