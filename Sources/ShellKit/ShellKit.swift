@@ -6,21 +6,64 @@
 
 import Foundation
 
-public enum ShellKitError: Error {
-    public typealias ExitStatus = Int32
+/// Protection type of shell injection
+public enum ProtectionType {
+    /// Disable all protection
+    case none
+    /// Weak protection (";", "|", "&", "`", "(", ")")
+    case weak
+    /// Stong protection ("$", "<", ">", "*", "?", "{", "}", "[", "]", "!")
+    /// and weak protection (";", "|", "&", "`", "(", ")")
+    case strong
+    /// Custom rule of protection
+    case custom([String])
 
-    case error(ExitStatus)
+    public static let `default`: ProtectionType = .strong
+
+    public var dangerWords: [String] {
+        switch self {
+        case .none:
+            return []
+        case .weak:
+            return [";", "|", "&", "`", "(", ")"]
+        case .strong:
+            return ["$", "<", ">", "*", "?", "{", "}", "[", "]", "!"] + ProtectionType.weak.dangerWords
+        case .custom(let v):
+            return v
+        }
+    }
+}
+
+public enum ShellKitError: Error {
+    public typealias ReturnCodeType = Int32
+
+    /// Found shell injection command with the charactor
+    case injectionPrevention(String)
+    /// Exit status not equals zero (!= 0)
+    case exitStatus(ReturnCodeType)
 }
 
 public class ShellKit {
     private let path: String = "/bin/sh"
+    public let protectionType: ProtectionType
 
-    public init() {}
+    public init(protectionType: ProtectionType = .default) {
+        self.protectionType = protectionType
+    }
+
+    private func containsDangerString(_ argv: String) -> String? {
+        return protectionType.dangerWords.first { argv.contains($0) }
+    }
 
     /// Execute commands
     @available(OSX 10.13, *)
     @discardableResult
     public func run(_ argv: String) throws -> String? {
+        let injectionCommand = containsDangerString(argv)
+        guard injectionCommand == nil else {
+            throw ShellKitError.injectionPrevention(injectionCommand!)
+        }
+
         let process = Process(path, argv: argv)
         let pipe = Pipe()
 
@@ -29,7 +72,7 @@ public class ShellKit {
         process.waitUntilExit()
 
         guard process.terminationStatus == 0 else {
-            throw ShellKitError.error(process.terminationStatus)
+            throw ShellKitError.exitStatus(process.terminationStatus)
         }
 
         return String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
@@ -38,6 +81,11 @@ public class ShellKit {
     /// Execute commands without result
     @available(OSX, deprecated: 10.13, renamed: "run(_:)")
     public func launch(_ argv: String) throws {
+        let injectionCommand = containsDangerString(argv)
+        guard injectionCommand == nil else {
+            throw ShellKitError.injectionPrevention(injectionCommand!)
+        }
+
         // 実行には `-c` が必要
         let arguments = ["-c"] + [argv]
         let process = Process.launchedProcess(
@@ -47,7 +95,7 @@ public class ShellKit {
         process.waitUntilExit()
 
         guard process.terminationStatus == 0 else {
-            throw ShellKitError.error(process.terminationStatus)
+            throw ShellKitError.exitStatus(process.terminationStatus)
         }
     }
 }
