@@ -18,7 +18,7 @@ extension SlackPet {
         case let e as ShellKitError:
             switch e {
             case .injectionPrevention(let s):
-                message = "\(templateErrorMessage)\nコマンドの中に「\(s)」って文字が入ってたって!"
+                message = "\(templateErrorMessage)\nコマンドの中に「\(s)」って文字見つけたから，止まっちゃった!"
             case .exitStatus(let c):
                 message = "\(templateErrorMessage)\nExit status: \(c) だから，だめだったっぽい!"
             }

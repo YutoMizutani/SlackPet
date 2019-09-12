@@ -15,14 +15,16 @@ public enum ProtectionType {
     /// Stong protection ("$", "<", ">", "*", "?", "{", "}", "[", "]", "!")
     /// and weak protection (";", "|", "&", "`", "(", ")")
     case strong
+    /// Separate argv ("echo Hello" -> ["echo" "Hello"])
+    case seperated
     /// Custom rule of protection
     case custom([String])
 
-    public static let `default`: ProtectionType = .strong
+    public static let `default`: ProtectionType = .seperated
 
     public var dangerWords: [String] {
         switch self {
-        case .disabled:
+        case .disabled, .seperated:
             return []
         case .weak:
             return [";", "|", "&", "`", "(", ")"]
@@ -30,6 +32,15 @@ public enum ProtectionType {
             return ["$", "<", ">", "*", "?", "{", "}", "[", "]", "!"] + ProtectionType.weak.dangerWords
         case .custom(let v):
             return v
+        }
+    }
+
+    public func parseArgv(_ argv: String) -> [String] {
+        switch self {
+        case .seperated:
+            return argv.components(separatedBy: " ")
+        case .disabled, .weak, .strong, .custom:
+            return [argv]
         }
     }
 }
@@ -45,27 +56,23 @@ public enum ShellKitError: Error {
 
 public class ShellKit {
     private let path: String = "/bin/sh"
-    public let defaultProtection: ProtectionType
 
-    public init(default protectionType: ProtectionType = .default) {
-        defaultProtection = protectionType
-    }
+    public init() {}
 
-    private func containsDangerString(_ argv: String, override type: ProtectionType? = nil) -> String? {
-        let protectionType: ProtectionType = type ?? defaultProtection
-        return protectionType.dangerWords.first { argv.contains($0) }
+    private func containsDangerString(_ argv: String, protection type: ProtectionType) -> String? {
+        return type.dangerWords.first { argv.contains($0) }
     }
 
     /// Execute commands
     @available(OSX 10.13, *)
     @discardableResult
-    public func run(_ argv: String, override type: ProtectionType? = nil) throws -> String? {
-        let injectionCommand = containsDangerString(argv, override: type)
+    public func run(_ argv: String, protection type: ProtectionType = .default) throws -> String? {
+        let injectionCommand = containsDangerString(argv, protection: type)
         guard injectionCommand == nil else {
             throw ShellKitError.injectionPrevention(injectionCommand!)
         }
 
-        let process = Process(path, argv: argv)
+        let process = Process(path, arguments: type.parseArgv(argv))
         let pipe = Pipe()
 
         process.standardOutput = pipe
@@ -81,14 +88,14 @@ public class ShellKit {
 
     /// Execute commands without result
     @available(OSX, deprecated: 10.13, renamed: "run(_:)")
-    public func launch(_ argv: String, override type: ProtectionType? = nil) throws {
-        let injectionCommand = containsDangerString(argv)
+    public func launch(_ argv: String, protection type: ProtectionType = .default) throws {
+        let injectionCommand = containsDangerString(argv, protection: type)
         guard injectionCommand == nil else {
             throw ShellKitError.injectionPrevention(injectionCommand!)
         }
 
         // 実行には `-c` が必要
-        let arguments = ["-c"] + [argv]
+        let arguments = ["-c"] + type.parseArgv(argv)
         let process = Process.launchedProcess(
             launchPath: path,
             arguments: arguments
@@ -103,15 +110,10 @@ public class ShellKit {
 
 extension Process {
     @available(OSX 10.13, *)
-    convenience init(_ path: String, argv: String) {
-        self.init(path, argv: [argv])
-    }
-
-    @available(OSX 10.13, *)
-    convenience init(_ path: String, argv: [String]) {
+    convenience init(_ path: String, arguments: [String]) {
         self.init()
         executableURL = URL(fileURLWithPath: path)
         // 実行には `-c` が必要
-        arguments = ["-c"] + argv
+        self.arguments = ["-c"] + arguments
     }
 }

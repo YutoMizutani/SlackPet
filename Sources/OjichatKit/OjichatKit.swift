@@ -32,9 +32,9 @@ public class OjichatKit {
             """
 
             if #available(OSX 10.13, *) {
-                try shellKit.run(command, override: .disabled)
+                try shellKit.run(command, protection: .disabled)
             } else {
-                try shellKit.launch(command, override: .disabled)
+                try shellKit.launch(command, protection: .disabled)
             }
 
             didInstallGoLang = true
@@ -54,9 +54,9 @@ public class OjichatKit {
             """
 
             if #available(OSX 10.13, *) {
-                try shellKit.run(command, override: .disabled)
+                try shellKit.run(command, protection: .disabled)
             } else {
-                try shellKit.launch(command, override: .disabled)
+                try shellKit.launch(command, protection: .disabled)
             }
 
             canExcute = true
