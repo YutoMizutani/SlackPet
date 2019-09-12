@@ -52,7 +52,7 @@ let package = Package(
         ),
         .target(
             name: "SlackPet",
-            dependencies: ["BitriseKit", "GitHubKit", "LongcatKit", "OjichatKit", "SlackBot", "SlackEmojiKit"],
+            dependencies: ["BitriseKit", "GitHubKit", "LongcatKit", "OjichatKit", "ShellKit", "SlackBot", "SlackEmojiKit"],
             path: "Sources/SlackPet"
         ),
         .testTarget(

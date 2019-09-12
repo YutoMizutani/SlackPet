@@ -9,7 +9,7 @@ import Foundation
 /// Protection type of shell injection
 public enum ProtectionType {
     /// Disable all protection
-    case none
+    case disabled
     /// Weak protection (";", "|", "&", "`", "(", ")")
     case weak
     /// Stong protection ("$", "<", ">", "*", "?", "{", "}", "[", "]", "!")
@@ -22,7 +22,7 @@ public enum ProtectionType {
 
     public var dangerWords: [String] {
         switch self {
-        case .none:
+        case .disabled:
             return []
         case .weak:
             return [";", "|", "&", "`", "(", ")"]
@@ -45,21 +45,22 @@ public enum ShellKitError: Error {
 
 public class ShellKit {
     private let path: String = "/bin/sh"
-    public let protectionType: ProtectionType
+    public let defaultProtection: ProtectionType
 
-    public init(protectionType: ProtectionType = .default) {
-        self.protectionType = protectionType
+    public init(default protectionType: ProtectionType = .default) {
+        defaultProtection = protectionType
     }
 
-    private func containsDangerString(_ argv: String) -> String? {
+    private func containsDangerString(_ argv: String, override type: ProtectionType? = nil) -> String? {
+        let protectionType: ProtectionType = type ?? defaultProtection
         return protectionType.dangerWords.first { argv.contains($0) }
     }
 
     /// Execute commands
     @available(OSX 10.13, *)
     @discardableResult
-    public func run(_ argv: String) throws -> String? {
-        let injectionCommand = containsDangerString(argv)
+    public func run(_ argv: String, override type: ProtectionType? = nil) throws -> String? {
+        let injectionCommand = containsDangerString(argv, override: type)
         guard injectionCommand == nil else {
             throw ShellKitError.injectionPrevention(injectionCommand!)
         }
@@ -80,7 +81,7 @@ public class ShellKit {
 
     /// Execute commands without result
     @available(OSX, deprecated: 10.13, renamed: "run(_:)")
-    public func launch(_ argv: String) throws {
+    public func launch(_ argv: String, override type: ProtectionType? = nil) throws {
         let injectionCommand = containsDangerString(argv)
         guard injectionCommand == nil else {
             throw ShellKitError.injectionPrevention(injectionCommand!)

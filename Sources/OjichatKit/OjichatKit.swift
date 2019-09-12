@@ -32,9 +32,9 @@ public class OjichatKit {
             """
 
             if #available(OSX 10.13, *) {
-                try shellKit.run(command)
+                try shellKit.run(command, override: .disabled)
             } else {
-                try shellKit.launch(command)
+                try shellKit.launch(command, override: .disabled)
             }
 
             didInstallGoLang = true
@@ -54,9 +54,9 @@ public class OjichatKit {
             """
 
             if #available(OSX 10.13, *) {
-                try shellKit.run(command)
+                try shellKit.run(command, override: .disabled)
             } else {
-                try shellKit.launch(command)
+                try shellKit.launch(command, override: .disabled)
             }
 
             canExcute = true
@@ -69,14 +69,9 @@ public class OjichatKit {
     /// ojichat を実行し，その結果を返す。
     /// OjichatKitは賢いオジサンなので，スペース区切りによるオプションにも対応する。
     @available(OSX 10.13, *)
-    public func execute(_ argv: String) -> String? {
+    public func execute(_ argv: String) throws -> String? {
         guard canExcute else { return nil }
-        do {
-            let command = "\(ojichatCommand) \(argv)"
-            return try shellKit.run(command)
-        } catch let e {
-            print(#function, e)
-            return nil
-        }
+        let command = "\(ojichatCommand) \(argv)"
+        return try shellKit.run(command)
     }
 }

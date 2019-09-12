@@ -41,9 +41,9 @@ public class LongcatKit {
             """
 
             if #available(OSX 10.13, *) {
-                try shellKit.run(command)
+                try shellKit.run(command, override: .disabled)
             } else {
-                try shellKit.launch(command)
+                try shellKit.launch(command, override: .disabled)
             }
 
             didInstallGoLang = true
@@ -63,9 +63,9 @@ public class LongcatKit {
             """
 
             if #available(OSX 10.13, *) {
-                try shellKit.run(command)
+                try shellKit.run(command, override: .disabled)
             } else {
-                try shellKit.launch(command)
+                try shellKit.launch(command, override: .disabled)
             }
 
             canExcute = true
@@ -77,22 +77,17 @@ public class LongcatKit {
 
     /// longcat を実行し，その結果を返す。
     /// スペース区切りによるオプションにも対応する。
-    public func generate(_ argv: String) -> URL? {
+    public func generate(_ argv: String) throws -> URL? {
         guard canExcute else { return nil }
-        do {
-            let argv = argv + " \(outOption) \(outPath)"
-            let command = "\(longcatCommand) \(argv)"
+        let argv = argv + " \(outOption) \(outPath)"
+        let command = "\(longcatCommand) \(argv)"
 
-            if #available(OSX 10.13, *) {
-                try shellKit.run(command)
-            } else {
-                try shellKit.launch(command)
-            }
-
-            return URL(fileURLWithPath: outPath)
-        } catch let e {
-            print(#function, e)
-            return nil
+        if #available(OSX 10.13, *) {
+            try shellKit.run(command)
+        } else {
+            try shellKit.launch(command)
         }
+
+        return URL(fileURLWithPath: outPath)
     }
 }
