@@ -52,13 +52,19 @@ public class BitriseKit {
     public func triggerBuild(_ app: BitriseAPI.App,
                              branch: String = "master",
                              workflow: String?,
+                             environments: [String: String]? = nil,
+                             isExpand: Bool = true,
                              completion: ((Result<(BitriseAPI.App, BitriseAPI.Trigger)>) -> Void)? = nil) {
         print("Starting a new build...\n\ttitle: \(app.title)\n\trepo: \(app.repoUrl.absoluteString)\n\tbranch: \(branch)\n\tworkflow: \(workflow ?? "Based on trigger map")")
 
+        let environments: [TriggerBuildOptions.BuildParams.Environments]? = environments?.isEmpty == false
+            ? environments?.map { TriggerBuildOptions.BuildParams.Environments(isExpand: isExpand, mappedTo: $0.key, value: $0.value) }
+            : nil
         service.triggerBuild(
             with: TriggerBuildOptions(
                 buildParams: TriggerBuildOptions.BuildParams(
                     branch: branch,
+                    environments: environments,
                     workflowID: workflow
                 )
             ),
@@ -77,6 +83,8 @@ public class BitriseKit {
     public func triggerBuild(_ app: String,
                              branch: String = "master",
                              workflow: String?,
+                             environments: [String: String]? = nil,
+                             isExpand: Bool = true,
                              completion: ((Result<(BitriseAPI.App, BitriseAPI.Trigger)>) -> Void)? = nil) {
         let appName = app
         searchApp(appName) { [weak self] in
@@ -88,6 +96,7 @@ public class BitriseKit {
                     app,
                     branch: branch,
                     workflow: workflow,
+                    environments: environments,
                     completion: completion
                 )
             case .failure(let e):

@@ -40,8 +40,11 @@ Bitrise のビルドを開始します。
 
 `:hammer: ` + Bitrise app タイトル
 
+#### オプション
+
 - 2行目以降に `branch: ` + Branch 名 で実行ブランチを指定する必要があります。
 - 2行目以降に `workflow: ` + Workflow 名 で実行ワークフローを指定できます。
+- 2行目以降に Key 名 + `: ` + Value 名 でカスタム環境変数を指定できます。
 
 <img width="633" alt="screenshot 74" src="https://user-images.githubusercontent.com/22558921/64196565-16e9b080-cebf-11e9-8c99-d531e25d6042.png">
 

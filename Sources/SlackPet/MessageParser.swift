@@ -33,21 +33,25 @@ extension SlackPet {
 
         // Trigger a new build
         parser.append { message, date, _, channel -> Bool in
-            guard
-                message.hasPrefix(":hammer: ")
-                    || message.hasPrefix(":hammer_and_pick: ")
-                    || message.hasPrefix(":hammer_and_wrench: ")
+            let targetEmojisWithSpaces = [
+                ":hammer: ",
+                ":hammer_and_pick: ",
+                ":hammer_and_wrench: "
+            ]
+            guard targetEmojisWithSpaces
+                .map({ message.hasPrefix($0) })
+                .reduce(false, { $0 || $1 })
             else { return false }
+            var message = message
+            targetEmojisWithSpaces.forEach { message = message.replacingOccurrences(of: $0, with: "") }
             var splittedMessages = message
-                .replacingOccurrences(of: ":hammer: ", with: "")
-                .replacingOccurrences(of: ":hammer_and_pick: ", with: "")
-                .replacingOccurrences(of: ":hammer_and_wrench: ", with: "")
                 .split(separator: "\n")
                 .map { String($0) }
             let appName = splittedMessages.first!
             splittedMessages = !splittedMessages.isEmpty
                 ? splittedMessages[1..<splittedMessages.count].map { $0 }
                 : []
+            // Pick branch
             guard let branchSeed = splittedMessages.enumerated().first(where: { $0.element.hasPrefix("branch: ") }) else {
                 self.slackBot.send("Error: Required parameter not found: `branch: <BRANCH_NAME>`", to: channel)
                 return true
@@ -55,10 +59,27 @@ extension SlackPet {
             let branch = branchSeed.element
                 .replacingOccurrences(of: "branch: ", with: "")
                 .replacingOccurrences(of: " ", with: "")
-            let workflowSeed = splittedMessages.enumerated().first(where: { $0.element.hasPrefix("workflow: ") })
-            let workflow = workflowSeed?.element
-                .replacingOccurrences(of: "workflow: ", with: "")
-            self.bitriseKit.triggerBuild(appName, branch: branch, workflow: workflow, completion: { [weak self] in
+            splittedMessages.remove(at: branchSeed.offset)
+            // Pick workflow
+            var workflow: String?
+            if let workflowSeed = splittedMessages.enumerated().first(where: { $0.element.hasPrefix("workflow: ") }) {
+                workflow = workflowSeed.element
+                    .replacingOccurrences(of: "workflow: ", with: "")
+                splittedMessages.remove(at: workflowSeed.offset)
+            }
+            // Pick custom environment variables
+            let environments: [String: String] = splittedMessages
+                .compactMap {
+                    let separated: [String] = $0.components(separatedBy: ": ")
+                    return separated.count == 2 ? [separated[0]: separated[1]] : nil
+                }
+                .reduce([:], { $0.merging($1) { $1 } })
+            // Trigger a new build
+            self.bitriseKit.triggerBuild(appName,
+                                         branch: branch,
+                                         workflow: workflow,
+                                         environments: environments,
+                                         completion: { [weak self] in
                 guard let (app, trigger) = $0.value else { return }
                 self?.slackBot.send(
                     "Build started!",
