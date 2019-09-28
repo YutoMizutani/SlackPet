@@ -33,21 +33,25 @@ extension SlackPet {
 
         // Trigger a new build
         parser.append { message, date, _, channel -> Bool in
-            guard
-                message.hasPrefix(":hammer: ")
-                    || message.hasPrefix(":hammer_and_pick: ")
-                    || message.hasPrefix(":hammer_and_wrench: ")
+            let targetEmojisWithSpaces = [
+                ":hammer: ",
+                ":hammer_and_pick: ",
+                ":hammer_and_wrench: "
+            ]
+            guard targetEmojisWithSpaces
+                .map({ message.hasPrefix($0) })
+                .reduce(false, { $0 || $1 })
             else { return false }
+            var message = message
+            targetEmojisWithSpaces.forEach { message = message.replacingOccurrences(of: $0, with: "") }
             var splittedMessages = message
-                .replacingOccurrences(of: ":hammer: ", with: "")
-                .replacingOccurrences(of: ":hammer_and_pick: ", with: "")
-                .replacingOccurrences(of: ":hammer_and_wrench: ", with: "")
                 .split(separator: "\n")
                 .map { String($0) }
             let appName = splittedMessages.first!
             splittedMessages = !splittedMessages.isEmpty
                 ? splittedMessages[1..<splittedMessages.count].map { $0 }
                 : []
+            // Pick branch
             guard let branchSeed = splittedMessages.enumerated().first(where: { $0.element.hasPrefix("branch: ") }) else {
                 self.slackBot.send("Error: Required parameter not found: `branch: <BRANCH_NAME>`", to: channel)
                 return true
@@ -55,10 +59,27 @@ extension SlackPet {
             let branch = branchSeed.element
                 .replacingOccurrences(of: "branch: ", with: "")
                 .replacingOccurrences(of: " ", with: "")
-            let workflowSeed = splittedMessages.enumerated().first(where: { $0.element.hasPrefix("workflow: ") })
-            let workflow = workflowSeed?.element
-                .replacingOccurrences(of: "workflow: ", with: "")
-            self.bitriseKit.triggerBuild(appName, branch: branch, workflow: workflow, completion: { [weak self] in
+            splittedMessages.remove(at: branchSeed.offset)
+            // Pick workflow
+            var workflow: String?
+            if let workflowSeed = splittedMessages.enumerated().first(where: { $0.element.hasPrefix("workflow: ") }) {
+                workflow = workflowSeed.element
+                    .replacingOccurrences(of: "workflow: ", with: "")
+                splittedMessages.remove(at: workflowSeed.offset)
+            }
+            // Pick custom environment variables
+            let environments: [String: String] = splittedMessages
+                .compactMap {
+                    let separated: [String] = $0.components(separatedBy: ": ")
+                    return separated.count == 2 ? [separated[0]: separated[1]] : nil
+                }
+                .reduce([:], { $0.merging($1) { $1 } })
+            // Trigger a new build
+            self.bitriseKit.triggerBuild(appName,
+                                         branch: branch,
+                                         workflow: workflow,
+                                         environments: environments,
+                                         completion: { [weak self] in
                 guard let (app, trigger) = $0.value else { return }
                 self?.slackBot.send(
                     "Build started!",
@@ -189,45 +210,29 @@ extension SlackPet {
 
         // longcat pipe
         if #available(OSX 10.13, *) {
+            let targetEmojisWithSpaces = [
+                ":cat:",
+                ":cat2:",
+                ":joy_cat:",
+                ":smile_cat:",
+                ":smirk_cat:",
+                ":smiley_cat:",
+                ":scream_cat:",
+                ":pouting_cat:",
+                ":kissing_cat:",
+                ":heart_eyes_cat:",
+                ":crying_cat_face:"
+            ]
             parser.append { message, date, _, channel -> Bool in
-                guard
-                    message.elementsEqual(":cat:")
-                        || message.elementsEqual(":cat2:")
-                        || message.elementsEqual(":joy_cat:")
-                        || message.elementsEqual(":smile_cat:")
-                        || message.elementsEqual(":smirk_cat:")
-                        || message.elementsEqual(":smiley_cat:")
-                        || message.elementsEqual(":scream_cat:")
-                        || message.elementsEqual(":pouting_cat:")
-                        || message.elementsEqual(":kissing_cat:")
-                        || message.elementsEqual(":heart_eyes_cat:")
-                        || message.elementsEqual(":crying_cat_face:")
-                        || message.hasPrefix(":cat: ")
-                        || message.hasPrefix(":cat2: ")
-                        || message.hasPrefix(":joy_cat: ")
-                        || message.hasPrefix(":smile_cat: ")
-                        || message.hasPrefix(":smirk_cat: ")
-                        || message.hasPrefix(":smiley_cat: ")
-                        || message.hasPrefix(":scream_cat: ")
-                        || message.hasPrefix(":pouting_cat: ")
-                        || message.hasPrefix(":kissing_cat: ")
-                        || message.hasPrefix(":heart_eyes_cat: ")
-                        || message.hasPrefix(":crying_cat_face: ")
+                guard targetEmojisWithSpaces
+                    .map({ message.elementsEqual($0) || message.hasPrefix("\($0) ") })
+                    .reduce(false, { $0 || $1 })
                 else { return false }
                 var argv = message.components(separatedBy: " ").dropFirst().joined(separator: " ")
-                if argv.elementsEqual(":cat:")
-                    || argv.elementsEqual(":cat2:")
-                    || argv.elementsEqual(":joy_cat:")
-                    || argv.elementsEqual(":smile_cat:")
-                    || argv.elementsEqual(":smirk_cat:")
-                    || argv.elementsEqual(":smiley_cat:")
-                    || argv.elementsEqual(":scream_cat:")
-                    || argv.elementsEqual(":pouting_cat:")
-                    || argv.elementsEqual(":kissing_cat:")
-                    || argv.elementsEqual(":heart_eyes_cat:")
-                    || argv.elementsEqual(":crying_cat_face:") {
-                    argv = ""
-                }
+                argv = targetEmojisWithSpaces
+                    .map { argv.elementsEqual($0) }
+                    .reduce(false) { $0 || $1 }
+                    ? "" : argv
                 do {
                     guard let longcatPath = try self.longcatKit.generate(argv) else { return false }
                     self.slackBot.upload("",
@@ -244,17 +249,19 @@ extension SlackPet {
 
         // ojichat pipe
         if #available(OSX 10.13, *) {
+            let targetEmoji = ":older_man:"
+            let targetEmojisWithSpaces = [
+                "\(targetEmoji) ",
+                "\(targetEmoji):skin-tone-2: ",
+                "\(targetEmoji):skin-tone-3: ",
+                "\(targetEmoji):skin-tone-4: ",
+                "\(targetEmoji):skin-tone-5: ",
+                "\(targetEmoji):skin-tone-6: "
+            ]
             parser.append { message, date, _, channel -> Bool in
-                guard message.hasPrefix(":older_man:") else { return false }
-                let argv = message == ":older_man:"
-                    ? ""
-                    : message
-                        .replacingOccurrences(of: ":older_man: ", with: "")
-                        .replacingOccurrences(of: ":older_man::skin-tone-2: ", with: "")
-                        .replacingOccurrences(of: ":older_man::skin-tone-3: ", with: "")
-                        .replacingOccurrences(of: ":older_man::skin-tone-4: ", with: "")
-                        .replacingOccurrences(of: ":older_man::skin-tone-5: ", with: "")
-                        .replacingOccurrences(of: ":older_man::skin-tone-6: ", with: "")
+                guard message.hasPrefix(targetEmoji) else { return false }
+                var argv = message.elementsEqual(targetEmoji) ? "" : message
+                targetEmojisWithSpaces.forEach { argv = argv.replacingOccurrences(of: $0, with: "") }
                 do {
                     guard let result = try self.ojichatKit.execute(argv) else { return false }
                     self.slackBot.send(result, to: channel)
