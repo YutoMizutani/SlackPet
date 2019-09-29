@@ -9,6 +9,7 @@ A customizable Slack bot tool with pet-like friendliness written in swift.
 
 - `bitrisePersonalAccessToken`: Bitrise のパーソナルアクセストークン
 - `slackBotToken`: SlackBot トークン
+- `slackShellSuperUserIDs`: SlackBot で Shell コマンドを実行可能なユーザーID名
 - `githubUserName`: GitHub のユーザ名
 - `githubPersonalToken`: GitHub のパーソナルアクセストークン
 - `githubTargetUser`: GitHub の対象リポジトリユーザー名
@@ -18,6 +19,7 @@ A customizable Slack bot tool with pet-like friendliness written in swift.
 public extension Secrets {
     static let bitrisePersonalAccessToken = Secrets("")
     static let slackBotToken = Secrets("")
+    static let slackShellSuperUserIDs = Secrets([])
     static let githubUserName = Secrets("")
     static let githubPersonalToken = Secrets("")
     static let githubTargetUser = Secrets("")
@@ -170,6 +172,24 @@ Options:
 #### スクリーンショット
 
 <img width="630" alt="screenshot 305" src="https://user-images.githubusercontent.com/22558921/62444208-d26fd580-b797-11e9-8426-43d519e4ba5f.png">
+
+## シェルコマンド
+
+任意のシェルコマンドを実行します。パイプ等も使用可能なため，環境変数に指定されたユーザーのみ実行が許可されます。
+
+### 反応メッセージ
+
+(`:shell: ` or `:heavy_dollar_sign: `) (任意のコマンド)
+
+#### メッセージ例
+
+```yml
+🐚 echo Hello, world!
+```
+
+#### スクリーンショット
+
+<img width="632" src="https://user-images.githubusercontent.com/22558921/65839822-de1cea00-e34b-11e9-9d94-c595747fcc71.png">
 
 ## タイマー
 入力した時間後に Slack から通知するタイマー機能です。

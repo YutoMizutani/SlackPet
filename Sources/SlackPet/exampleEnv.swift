@@ -4,6 +4,7 @@
 //public extension Secrets {
 //    static let bitrisePersonalAccessToken = Secrets("")
 //    static let slackBotToken = Secrets("")
+//    static let slackShellSuperUserIDs = Secrets([])
 //    static let githubUserName = Secrets("")
 //    static let githubPersonalToken = Secrets("")
 //    static let githubTargetUser = Secrets("")
