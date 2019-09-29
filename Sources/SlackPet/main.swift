@@ -5,6 +5,7 @@ import LongcatKit
 import OjichatKit
 import SlackBot
 import SlackEmojiKit
+import ShellKit
 
 class SlackPet {
     let bitriseKit: BitriseKit
@@ -13,7 +14,10 @@ class SlackPet {
     let ojichatKit: OjichatKit
     let slackBot: SlackBot
     let slackEmojiKit: SlackEmojiKit
+    let shellKit: ShellKit
     var parser: MessageParser!
+
+    let slackShellSuperUserIDs: [String]
 
     init() {
         bitriseKit = BitriseKit(Secrets.bitrisePersonalAccessToken.value)
@@ -22,6 +26,8 @@ class SlackPet {
         ojichatKit = OjichatKit()
         slackBot = SlackBot(Secrets.slackBotToken.value)
         slackEmojiKit = SlackEmojiKit()
+        shellKit = ShellKit()
+        slackShellSuperUserIDs = Secrets.slackShellSuperUserIDs.value.components(separatedBy: Secrets.separator)
         parser = configureMessageParser()
         configureSlackDelegate()
     }
@@ -32,8 +38,8 @@ extension SlackPet: SlackNotificationDelegate {
         slackBot.delegate = self
     }
 
-    func notifyMessage(_ message: String, date: Date?, team: String, channel: String) {
-        parser.parse(message, date: date, team: team, channel: channel)
+    func notifyMessage(_ message: String, date: Date?, team: String, channel: String, userID: String) {
+        parser.parse(message, date: date, team: team, channel: channel, userID: userID)
     }
 }
 

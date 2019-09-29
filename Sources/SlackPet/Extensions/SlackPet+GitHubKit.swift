@@ -21,7 +21,8 @@ extension SlackPet {
                 Create an issue #\($0["number"] as! Int)
                 URL: \($0["html_url"] as! String)
                 """,
-                to: channel
+                to: channel,
+                failure: self.errorHandring(to: channel)
             )
         }
     }

@@ -3,15 +3,15 @@ import SlackKit
 
 class MessageParser {
     private var handlers: [MessageHandler] = []
-    typealias MessageHandler = ((_ message: String, _ date: Date?, _ team: String, _ channel: String) -> Bool)
+    typealias MessageHandler = ((_ message: String, _ date: Date?, _ team: String, _ channel: String, _ userID: String) -> Bool)
 
     func append(_ handler: @escaping MessageHandler) {
         handlers.append(handler)
     }
 
-    func parse(_ message: String, date: Date?, team: String, channel: String) {
+    func parse(_ message: String, date: Date?, team: String, channel: String, userID: String) {
         for handler in handlers {
-            guard !handler(message, date, team, channel) else { break }
+            guard !handler(message, date, team, channel, userID) else { break }
         }
     }
 }
@@ -23,16 +23,16 @@ extension SlackPet {
         // MARK: - Hello, world
 
         // Hello, world!!
-        parser.append { message, date, _, channel -> Bool in
+        parser.append { message, date, _, channel, _ -> Bool in
             guard message == "hello" else { return false }
-            self.slackBot.send("Hello, world!!", to: channel)
+            self.slackBot.send("Hello, world!!", to: channel, failure: self.errorHandring(to: channel))
             return true
         }
 
         // MARK: - Bitrise
 
         // Trigger a new build
-        parser.append { message, date, _, channel -> Bool in
+        parser.append { message, date, _, channel, _ -> Bool in
             let targetEmojisWithSpaces = [
                 ":hammer: ",
                 ":hammer_and_pick: ",
@@ -53,7 +53,9 @@ extension SlackPet {
                 : []
             // Pick branch
             guard let branchSeed = splittedMessages.enumerated().first(where: { $0.element.hasPrefix("branch: ") }) else {
-                self.slackBot.send("Error: Required parameter not found: `branch: <BRANCH_NAME>`", to: channel)
+                self.slackBot.send("Error: Required parameter not found: `branch: <BRANCH_NAME>`",
+                                   to: channel,
+                                   failure: self.errorHandring(to: channel))
                 return true
             }
             let branch = branchSeed.element
@@ -80,36 +82,36 @@ extension SlackPet {
                                          workflow: workflow,
                                          environments: environments,
                                          completion: { [weak self] in
-                guard let (app, trigger) = $0.value else { return }
-                self?.slackBot.send(
-                    "Build started!",
-                    to: channel,
-                    attachments: [
-                        Attachment(
-                            fallback: trigger.buildSlug,
-                            title: trigger.message,
-                            colorHex: "#683D87",
-                            fields: [
-                                AttachmentField(field:
-                                    [
-                                        "App": app.title,
-                                        "Branch": trigger.service,
-                                        "Workflow": trigger.triggeredWorkflow
-                                    ]
-                                )
-                            ],
-                            actions: [
-                                Action(
-                                    name: "View Build",
-                                    text: "View Build",
-                                    type: "button",
-                                    style: .defaultStyle,
-                                    url: trigger.buildUrl
-                                )
-                            ]
-                        )
-                    ]
-                )
+                guard let self = self, let (app, trigger) = $0.value else { return }
+                let attachments: [Attachment] = [
+                    Attachment(
+                        fallback: trigger.buildSlug,
+                        title: trigger.message,
+                        colorHex: "#683D87",
+                        fields: [
+                            AttachmentField(field:
+                                [
+                                    "App": app.title,
+                                    "Branch": trigger.service,
+                                    "Workflow": trigger.triggeredWorkflow
+                                ]
+                            )
+                        ],
+                        actions: [
+                            Action(
+                                name: "View Build",
+                                text: "View Build",
+                                type: "button",
+                                style: .defaultStyle,
+                                url: trigger.buildUrl
+                            )
+                        ]
+                    )
+                ]
+                self.slackBot.send("Build started!",
+                                   to: channel,
+                                   attachments: attachments,
+                                   failure: self.errorHandring(to: channel))
             })
             return true
         }
@@ -117,7 +119,7 @@ extension SlackPet {
         // MARK: - GitHub
 
         // Create a new issue
-        parser.append { message, date, _, channel -> Bool in
+        parser.append { message, date, _, channel, _ -> Bool in
             guard message.hasPrefix(":ticket: ") else { return false }
             var splittedMessages = message
                 .replacingOccurrences(of: ":ticket: ", with: "")
@@ -160,7 +162,7 @@ extension SlackPet {
         // MARK: - Emoji
 
         // Create a new emoji
-        parser.append { message, date, team, channel -> Bool in
+        parser.append { message, date, team, channel, _ -> Bool in
             guard message.hasPrefix(":art: ") else { return false }
             let colorRegex = "(0x|#)[0-9a-fA-F]{6,8}"
             let textColorRegex = "(color|textColor|text): \(colorRegex)"
@@ -200,9 +202,12 @@ extension SlackPet {
             else { return true }
             let addCustomEmojiURL = "https://\(team).slack.com/customize/emoji"
             let uploadMessage = "emoji できたよ!\n追加用URL: \(addCustomEmojiURL)"
+
             self.slackBot.upload(uploadMessage,
                                  filePath: emojiPath,
-                                 to: channel)
+                                 to: channel,
+                                 failure: self.errorHandring(to: channel))
+
             return true
         }
 
@@ -222,7 +227,7 @@ extension SlackPet {
             ":heart_eyes_cat:",
             ":crying_cat_face:"
         ]
-        parser.append { message, date, _, channel -> Bool in
+        parser.append { message, date, _, channel, _ -> Bool in
             guard targetEmojisWithSpaces
                 .map({ message.elementsEqual($0) || message.hasPrefix("\($0) ") })
                 .reduce(false, { $0 || $1 })
@@ -236,7 +241,8 @@ extension SlackPet {
                 guard let longcatPath = try self.longcatKit.generate(argv) else { return false }
                 self.slackBot.upload("",
                                      filePath: longcatPath,
-                                     to: channel)
+                                     to: channel,
+                                     failure: self.errorHandring(to: channel))
             } catch let e {
                 self.errorHandring(e, to: channel)
             }
@@ -256,15 +262,42 @@ extension SlackPet {
                 "\(targetEmoji):skin-tone-5: ",
                 "\(targetEmoji):skin-tone-6: "
             ]
-            parser.append { message, date, _, channel -> Bool in
+            parser.append { message, date, _, channel, _ -> Bool in
                 guard message.hasPrefix(targetEmoji) else { return false }
                 var argv = message.elementsEqual(targetEmoji) ? "" : message
                 targetEmojisWithSpaces.forEach { argv = argv.replacingOccurrences(of: $0, with: "") }
                 do {
                     guard let result = try self.ojichatKit.execute(argv) else { return false }
-                    self.slackBot.send(result, to: channel)
+                    self.slackBot.send(result, to: channel, failure: self.errorHandring(to: channel))
                 } catch let e {
                     print(#function, e)
+                    self.errorHandring(e, to: channel)
+                }
+                return true
+            }
+        }
+
+        // MARK: - ShellKit
+
+        // Run shell commands by allowed user
+        if #available(OSX 10.13, *) {
+            let targetEmojisWithSpaces = [
+                ":heavy_dollar_sign: ",
+                ":shell: "
+            ]
+            parser.append { message, date, _, channel, userID -> Bool in
+                guard
+                    self.slackShellSuperUserIDs.contains(userID),
+                    targetEmojisWithSpaces
+                    .map({ message.hasPrefix($0) })
+                    .reduce(false, { $0 || $1 })
+                else { return false }
+                var argv = message
+                targetEmojisWithSpaces.forEach { argv = argv.replacingOccurrences(of: $0, with: "") }
+                do {
+                    guard let result = try self.shellKit.run(argv, protection: .disabled) else { return false }
+                    self.slackBot.send(result, to: channel, failure: self.errorHandring(to: channel))
+                } catch let e {
                     self.errorHandring(e, to: channel)
                 }
                 return true
@@ -276,7 +309,7 @@ extension SlackPet {
         // 分後にお知らせ
         // e.g. 20時半には帰るから10分後に「帰るよー!」って知らせて!
         if #available(OSX 10.12, *) {
-            parser.append { message, date, _, channel -> Bool in
+            parser.append { message, date, _, channel, _ -> Bool in
                 guard
                     message.hasPrefix(":clock"),
                     message.contains("伝え")
@@ -286,14 +319,17 @@ extension SlackPet {
                     else { return false }
                 let minutes = Int(interval) / 60
                 let body = Translator.getBody(from: message)
-                self.slackBot.send("\(minutes) 分後ね! 分かった!", to: channel)
+
+                self.slackBot.send("\(minutes) 分後ね! 分かった!", to: channel, failure: self.errorHandring(to: channel))
                 Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
+                    guard let self = self else { return }
                     if let body = body {
-                        self?.slackBot.send("\(minutes)分前の自分が\(body)\(Bool.random() ? "だって" : "って言ってたよ")ー!", to: channel)
+                        self.slackBot.send("\(minutes)分前の自分が\(body)\(Bool.random() ? "だって" : "って言ってたよ")ー!", to: channel, failure: self.errorHandring(to: channel))
                     } else {
-                        self?.slackBot.send("アラームだよ〜", to: channel)
+                        self.slackBot.send("アラームだよ〜", to: channel, failure: self.errorHandring(to: channel))
                     }
                 }
+
                 return true
             }
         }
@@ -301,23 +337,23 @@ extension SlackPet {
         // MARKL: - Message
 
         // こんにちは
-        parser.append { message, date, _, channel -> Bool in
+        parser.append { message, date, _, channel, _ -> Bool in
             guard message.contains("こんにちは") else { return false }
-            self.slackBot.send("こんにちは", to: channel)
+            self.slackBot.send("こんにちは", to: channel, failure: self.errorHandring(to: channel))
             return true
         }
 
         // こんにちわ
-        parser.append { message, date, _, channel -> Bool in
+        parser.append { message, date, _, channel, _ -> Bool in
             guard message.contains("こんにちわ") else { return false }
-            self.slackBot.send("こんにちわ", to: channel)
+            self.slackBot.send("こんにちわ", to: channel, failure: self.errorHandring(to: channel))
             return true
         }
 
         // どういたしまして!
-        parser.append { message, date, _, channel -> Bool in
+        parser.append { message, date, _, channel, _ -> Bool in
             guard message.contains("ありがとう") else { return false }
-            self.slackBot.send("どういたしまして!", to: channel)
+            self.slackBot.send("どういたしまして!", to: channel, failure: self.errorHandring(to: channel))
             return true
         }
 
