@@ -83,9 +83,9 @@ public class LongcatKit {
         let command = "\(longcatCommand) \(argv)"
 
         if #available(OSX 10.13, *) {
-            try shellKit.run(command)
+            try shellKit.run(command, protection: .strong)
         } else {
-            try shellKit.launch(command)
+            try shellKit.launch(command, protection: .strong)
         }
 
         return URL(fileURLWithPath: outPath)

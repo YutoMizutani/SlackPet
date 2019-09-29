@@ -209,40 +209,38 @@ extension SlackPet {
         // MARK: - longcat
 
         // longcat pipe
-        if #available(OSX 10.13, *) {
-            let targetEmojisWithSpaces = [
-                ":cat:",
-                ":cat2:",
-                ":joy_cat:",
-                ":smile_cat:",
-                ":smirk_cat:",
-                ":smiley_cat:",
-                ":scream_cat:",
-                ":pouting_cat:",
-                ":kissing_cat:",
-                ":heart_eyes_cat:",
-                ":crying_cat_face:"
-            ]
-            parser.append { message, date, _, channel -> Bool in
-                guard targetEmojisWithSpaces
-                    .map({ message.elementsEqual($0) || message.hasPrefix("\($0) ") })
-                    .reduce(false, { $0 || $1 })
-                else { return false }
-                var argv = message.components(separatedBy: " ").dropFirst().joined(separator: " ")
-                argv = targetEmojisWithSpaces
-                    .map { argv.elementsEqual($0) }
-                    .reduce(false) { $0 || $1 }
-                    ? "" : argv
-                do {
-                    guard let longcatPath = try self.longcatKit.generate(argv) else { return false }
-                    self.slackBot.upload("",
-                                         filePath: longcatPath,
-                                         to: channel)
-                } catch let e {
-                    self.errorHandring(e, to: channel)
-                }
-                return true
+        let targetEmojisWithSpaces = [
+            ":cat:",
+            ":cat2:",
+            ":joy_cat:",
+            ":smile_cat:",
+            ":smirk_cat:",
+            ":smiley_cat:",
+            ":scream_cat:",
+            ":pouting_cat:",
+            ":kissing_cat:",
+            ":heart_eyes_cat:",
+            ":crying_cat_face:"
+        ]
+        parser.append { message, date, _, channel -> Bool in
+            guard targetEmojisWithSpaces
+                .map({ message.elementsEqual($0) || message.hasPrefix("\($0) ") })
+                .reduce(false, { $0 || $1 })
+            else { return false }
+            var argv = message.components(separatedBy: " ").dropFirst().joined(separator: " ")
+            argv = targetEmojisWithSpaces
+                .map { argv.elementsEqual($0) }
+                .reduce(false) { $0 || $1 }
+                ? "" : argv
+            do {
+                guard let longcatPath = try self.longcatKit.generate(argv) else { return false }
+                self.slackBot.upload("",
+                                     filePath: longcatPath,
+                                     to: channel)
+            } catch let e {
+                self.errorHandring(e, to: channel)
             }
+            return true
         }
 
         // MARK: - ojichat

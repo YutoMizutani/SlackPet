@@ -72,6 +72,6 @@ public class OjichatKit {
     public func execute(_ argv: String) throws -> String? {
         guard canExcute else { return nil }
         let command = "\(ojichatCommand) \(argv)"
-        return try shellKit.run(command)
+        return try shellKit.run(command, protection: .strong)
     }
 }
