@@ -32,6 +32,11 @@ let package = Package(
             path: "Sources/LongcatKit"
         ),
         .target(
+            name: "NuNoShellGeiKit",
+            dependencies: ["ShellKit"],
+            path: "Sources/NuNoShellGeiKit"
+        ),
+        .target(
             name: "OjichatKit",
             dependencies: ["ShellKit"],
             path: "Sources/OjichatKit"
@@ -52,7 +57,7 @@ let package = Package(
         ),
         .target(
             name: "SlackPet",
-            dependencies: ["BitriseKit", "GitHubKit", "LongcatKit", "OjichatKit", "ShellKit", "SlackBot", "SlackEmojiKit"],
+            dependencies: ["BitriseKit", "GitHubKit", "LongcatKit", "NuNoShellGeiKit", "OjichatKit", "ShellKit", "SlackBot", "SlackEmojiKit"],
             path: "Sources/SlackPet"
         ),
         .testTarget(
