@@ -249,6 +249,29 @@ extension SlackPet {
             return true
         }
 
+        // MARK: - NuNoShellGeiKit
+
+        // Run NuNoShellGeiKit
+        if #available(OSX 10.13, *) {
+            let targetEmoji = ":nu: "
+            parser.append { message, date, _, channel, _ -> Bool in
+                guard message.hasPrefix(targetEmoji) else { return false }
+                let text = message.replacingOccurrences(of: targetEmoji, with: "")
+                guard !text.isEmpty else { return false }
+                do {
+                    guard let nuNoShellGeiKitPath = try self.nuNoShellGeiKit.generate(text) else { return false }
+                    self.slackBot.upload("",
+                                         filePath: nuNoShellGeiKitPath,
+                                         to: channel,
+                                         failure: self.errorHandring(to: channel))
+                } catch let e {
+                    print(#function, e)
+                    self.errorHandring(e, to: channel)
+                }
+                return true
+            }
+        }
+
         // MARK: - ojichat
 
         // ojichat pipe

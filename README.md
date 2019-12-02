@@ -173,6 +173,24 @@ Options:
 
 <img width="630" alt="screenshot 305" src="https://user-images.githubusercontent.com/22558921/62444208-d26fd580-b797-11e9-8426-43d519e4ba5f.png">
 
+## ぬのシェル芸
+
+[ぬのシェル芸](https://qiita.com/yami_buta/items/5b4792afcdb1e1ca1295) を出力します。
+
+### 反応メッセージ
+
+`:nu: ` + (任意の文字)
+
+#### メッセージ例
+
+```yml
+:nu: ぬ
+```
+
+#### スクリーンショット
+
+<img width="630" src="https://user-images.githubusercontent.com/22558921/69938439-b0594a80-1520-11ea-86d3-9f4a0cf8d7a1.png">
+
 ## シェルコマンド
 
 任意のシェルコマンドを実行します。パイプ等も使用可能なため，環境変数に指定されたユーザーのみ実行が許可されます。
